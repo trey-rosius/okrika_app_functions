@@ -229,7 +229,8 @@ exports.productsSubs = functions.firestore
   });
 
   const ALGOLIA_INDEX_NAME = 'allProducts';
-  const client = algoliasearch('#########', '########');
+  //const client = algoliasearch('#########', '########');
+  
  // const client = algoliasearch(ALGOLIA_ID,ALGOLIA_ADMIN_KEY);
 // [END init_algolia]
 
@@ -249,3 +250,69 @@ exports.onProductCreated = functions.firestore.document("allProducts/{productId}
   const index = client.initIndex(ALGOLIA_INDEX_NAME);
   return index.saveObject(product);
 });
+
+exports.feedbackNotification = functions.firestore
+  .document("feedback/{feedbackId}")
+  .onCreate((change, context) => {
+    // Note the syntax has change to Cloud Function v1.+ version (see https://firebase.google.com/docs/functions/beta-v1-diff?0#cloud-firestore)
+ 
+    const promises = [];
+    let fromUserId =""
+    let fromUserName ="";
+        let feedback = "";
+    let feedbackAdminId = "";
+    let productId = "";
+    let productAdminId = ""
+    //  console.log("message text" + change.data().message);
+    console.log("product Admin id" + change.data().productAdmin);
+    productId = change.data().productId;
+
+    var senderDetails = admin
+      .firestore()
+      .collection("users")
+      .doc(change.data().feedbackAdmin)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          console.log("Document data:", doc.data());
+          fromUserName = doc.data().fullNames;
+          fromUserId = doc.id;
+          console.log("user name is" + fromUserName);
+          console.log(doc.id, "=>", doc.data());
+          const tokenId = doc.data().notificationToken;
+          console.log("fcm token" + tokenId);
+          const payload = {
+            notification: {
+              title: "Okrika",
+              sound: "default",
+              body: fromUserName + " has left a feedback on your product",
+            },
+            data: {
+              // username: fromUserName,
+              click_action: "FLUTTER_NOTIFICATION_CLICK",
+              notificationType: "feedback",
+              message:
+                fromUserName + " has left a feedback on your product",
+             
+              productId:change.data().productId
+            },
+          };
+
+          // promises.push(admin.messaging().sendToDevice(tokenId, payload));
+
+          return admin.messaging().sendToDevice(tokenId, payload);
+ } else {
+          throw new Error("No sender document!");
+          //the error is goinf to be catched by the catch method at the end of the promise chaining
+        }
+      })
+
+      .then((results) => {
+        console.log("All notifications sent!");
+        return true;
+      })
+      .catch((error) => {
+        console.log(error);
+        return false;
+      });
+  });
