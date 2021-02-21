@@ -230,7 +230,7 @@ exports.productsSubs = functions.firestore
 
   const ALGOLIA_INDEX_NAME = 'allProducts';
   //const client = algoliasearch('#########', '########');
-  const client = algoliasearch('T7FYZXZ6C2', '180adb3f5b2be3cef1a526a16bc2ad72');
+
  // const client = algoliasearch(ALGOLIA_ID,ALGOLIA_ADMIN_KEY);
 // [END init_algolia]
 
@@ -270,7 +270,7 @@ exports.feedbackNotification = functions.firestore
     var senderDetails = admin
       .firestore()
       .collection("users")
-      .doc(change.data().feedbackAdmin)
+      .doc(change.data().productAdmin)
       .get()
       .then((doc) => {
         if (doc.exists) {
