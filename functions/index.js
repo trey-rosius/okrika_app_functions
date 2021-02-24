@@ -59,7 +59,7 @@ exports.chats = functions.firestore
 
                 const payload = {
                   notification: {
-                    title: "Okrika",
+                    title: "Chats",
                     sound: "default",
                     body: fromUserName + " sent a message",
                   },
@@ -109,6 +109,7 @@ exports.notifications = functions.firestore
     console.log("Sender user Id" + change.data().senderId);
     console.log("notification text" + change.data().notificationText);
     let notificationText = change.data().notificationText;
+    let notificationType = change.data().notificationType;
 
     var senderDetails = admin
       .firestore()
@@ -133,14 +134,14 @@ exports.notifications = functions.firestore
 
               const payload = {
                 notification: {
-                  title: fromUserName,
+                  title: notificationType,
                   sound: "default",
-                  body: fromUserName + notificationText,
+                  body:  notificationText,
                 },
                 data: {
                   click_action: "FLUTTER_NOTIFICATION_CLICK",
                   notificationType: "notifications",
-                  message: fromUserName + notificationText,
+                  message:  notificationText,
                 },
               };
 
@@ -230,7 +231,7 @@ exports.productsSubs = functions.firestore
 
   const ALGOLIA_INDEX_NAME = 'allProducts';
   //const client = algoliasearch('#########', '########');
-
+  const client = algoliasearch('T7FYZXZ6C2', '180adb3f5b2be3cef1a526a16bc2ad72');
  // const client = algoliasearch(ALGOLIA_ID,ALGOLIA_ADMIN_KEY);
 // [END init_algolia]
 
@@ -283,7 +284,7 @@ exports.feedbackNotification = functions.firestore
           console.log("fcm token" + tokenId);
           const payload = {
             notification: {
-              title: "Okrika",
+              title: "Feedback",
               sound: "default",
               body: fromUserName + " has left a feedback on your product",
             },
